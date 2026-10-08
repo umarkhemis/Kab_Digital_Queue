@@ -335,3 +335,53 @@ button.secondary {
     align-items: flex-start;
   }
 }
+
+.appointment {
+  padding: 16px;
+  margin-top: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.appointment p {
+  margin: 6px 0;
+}
+
+.appointment span {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  font-size: 13px;
+}
+
+.rating {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.rating button {
+  width: 45px;
+  height: 45px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: white;
+  cursor: pointer;
+}
+
+.rating button.rating-selected {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  resize: vertical;
+  margin-bottom: 15px;
+}
