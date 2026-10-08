@@ -1,0 +1,337 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f6f8;
+  color: #172033;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 30px 20px;
+}
+
+.header {
+  background: #123c69;
+  color: white;
+  padding: 25px 30px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.header p {
+  margin: 6px 0 0;
+  opacity: 0.85;
+}
+
+.student {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.student span {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.welcome {
+  margin: 30px 0 20px;
+}
+
+.welcome h2 {
+  margin-bottom: 8px;
+}
+
+.welcome p {
+  color: #667085;
+}
+
+.card,
+.queue-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+}
+
+.card h2,
+.queue-card h2 {
+  margin-top: 0;
+}
+
+label {
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+select {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d0d5dd;
+  border-radius: 7px;
+  font-size: 16px;
+  background: white;
+}
+
+.actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+button {
+  padding: 13px 22px;
+  border: none;
+  border-radius: 7px;
+  background: #123c69;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  background: #198754;
+}
+
+.message {
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 7px;
+  background: #eef6ff;
+  color: #174a7e;
+}
+
+.queue-card {
+  text-align: center;
+}
+
+.queue-number {
+  font-size: 70px;
+  font-weight: bold;
+  color: #123c69;
+  margin-top: 15px;
+}
+
+.queue-card > p {
+  color: #667085;
+}
+
+.queue-info {
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  margin-top: 25px;
+}
+
+.queue-info div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.queue-info span {
+  color: #667085;
+}
+
+.queue-info strong {
+  font-size: 20px;
+}
+
+@media (max-width: 650px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .student {
+    text-align: left;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .queue-info {
+    gap: 40px;
+  }
+}
+
+
+.staff-container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px 20px;
+}
+
+.staff-header {
+  background: #172033;
+  color: white;
+  padding: 25px 30px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.staff-header h1 {
+  margin: 0;
+}
+
+.staff-header p {
+  margin: 6px 0 0;
+  opacity: 0.8;
+}
+
+.staff-card {
+  background: white;
+  margin-top: 25px;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.staff-card h2 {
+  margin-top: 0;
+}
+
+.staff-card label {
+  display: block;
+  margin-top: 18px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.staff-card select {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d0d5dd;
+  border-radius: 7px;
+  font-size: 16px;
+}
+
+.call-button {
+  margin-top: 25px;
+  background: #123c69;
+}
+
+.staff-message {
+  margin-top: 18px;
+  padding: 12px;
+  background: #eef6ff;
+  border-radius: 7px;
+}
+
+.queue-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.queue-heading p {
+  color: #667085;
+}
+
+.refresh-button {
+  background: #667085;
+}
+
+.empty {
+  text-align: center;
+  padding: 40px;
+  color: #667085;
+}
+
+.queue-list {
+  margin-top: 20px;
+}
+
+.queue-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px;
+  border: 1px solid #eaecf0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.queue-token {
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+}
+
+.queue-token strong {
+  font-size: 24px;
+  color: #123c69;
+}
+
+.queue-token span {
+  color: #667085;
+  font-size: 14px;
+}
+
+.status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+.status.waiting {
+  background: #fff4e5;
+  color: #9a6700;
+}
+
+.status.called {
+  background: #e8f1ff;
+  color: #175cd3;
+}
+
+.status.serving {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.queue-actions button {
+  background: #198754;
+}
+
+@media (max-width: 700px) {
+  .staff-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .queue-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
