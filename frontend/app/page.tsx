@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -25,12 +24,27 @@ type QueueStatus = {
   position: number;
 };
 
+type Appointment = {
+  id: number;
+  service_id: number;
+  appointment_time: string;
+  status: string;
+};
+
 export default function Home() {
   const [offices, setOffices] = useState<Office[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [selectedOffice, setSelectedOffice] = useState("");
   const [selectedService, setSelectedService] = useState("");
+
   const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
+
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointmentTime, setAppointmentTime] = useState("");
+
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -57,6 +71,10 @@ export default function Home() {
   }, [selectedOffice]);
 
   useEffect(() => {
+    loadAppointments();
+  }, []);
+
+  useEffect(() => {
     if (!queueStatus?.queue_id) return;
 
     const interval = setInterval(async () => {
@@ -68,7 +86,6 @@ export default function Home() {
         if (!response.ok) return;
 
         const data = await response.json();
-
         setQueueStatus(data);
       } catch {
         console.log("Unable to refresh queue status.");
@@ -78,7 +95,20 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [queueStatus?.queue_id]);
 
+  async function loadAppointments() {
+    try {
+      const response = await fetch(
+        `${API_URL}/appointments/user/${userId}`
+      );
 
+      if (!response.ok) return;
+
+      const data = await response.json();
+      setAppointments(data);
+    } catch {
+      console.log("Unable to load appointments.");
+    }
+  }
 
   async function joinQueue() {
     if (!selectedService) {
@@ -129,6 +159,11 @@ export default function Home() {
       return;
     }
 
+    if (!appointmentTime) {
+      setMessage("Please select an appointment date and time.");
+      return;
+    }
+
     setLoading(true);
     setMessage("");
 
@@ -141,7 +176,7 @@ export default function Home() {
         body: JSON.stringify({
           user_id: userId,
           service_id: Number(selectedService),
-          appointment_time: "2026-10-09T10:00:00",
+          appointment_time: appointmentTime,
         }),
       });
 
@@ -152,9 +187,54 @@ export default function Home() {
         return;
       }
 
-      setMessage(
-        `Appointment booked successfully for ${data.appointment_time}.`
-      );
+      setMessage("Appointment booked successfully.");
+      setAppointmentTime("");
+      await loadAppointments();
+    } catch {
+      setMessage("Could not connect to the server.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function submitFeedback() {
+    if (!rating) {
+      setMessage("Please select a rating from 1 to 5.");
+      return;
+    }
+
+    if (!queueStatus?.queue_id) {
+      setMessage("Please complete a queue service before submitting feedback.");
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const response = await fetch(`${API_URL}/feedback/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          queue_id: queueStatus.queue_id,
+          rating,
+          comment: comment || null,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMessage(data.detail || "Unable to submit feedback.");
+        return;
+      }
+
+      setMessage("Thank you. Your feedback has been submitted.");
+      setRating(0);
+      setComment("");
     } catch {
       setMessage("Could not connect to the server.");
     } finally {
@@ -188,6 +268,7 @@ export default function Home() {
         <h2>Request a Service</h2>
 
         <label>Select Office</label>
+
         <select
           value={selectedOffice}
           onChange={(e) => setSelectedOffice(e.target.value)}
@@ -202,6 +283,7 @@ export default function Home() {
         </select>
 
         <label>Select Service</label>
+
         <select
           value={selectedService}
           onChange={(e) => setSelectedService(e.target.value)}
@@ -215,6 +297,14 @@ export default function Home() {
             </option>
           ))}
         </select>
+
+        <label>Appointment Date and Time</label>
+
+        <input
+          type="datetime-local"
+          value={appointmentTime}
+          onChange={(e) => setAppointmentTime(e.target.value)}
+        />
 
         <div className="actions">
           <button onClick={joinQueue} disabled={loading}>
@@ -254,6 +344,64 @@ export default function Home() {
               <strong>{queueStatus.status}</strong>
             </div>
           </div>
+        </section>
+      )}
+
+      <section className="card">
+        <h2>My Appointments</h2>
+
+        {appointments.length === 0 ? (
+          <p>No appointments booked yet.</p>
+        ) : (
+          <div>
+            {appointments.map((appointment) => (
+              <div key={appointment.id} className="appointment">
+                <strong>
+                  Appointment #{appointment.id}
+                </strong>
+
+                <p>
+                  {new Date(
+                    appointment.appointment_time
+                  ).toLocaleString()}
+                </p>
+
+                <span>{appointment.status}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {queueStatus && (
+        <section className="card">
+          <h2>Service Feedback</h2>
+
+          <p>How satisfied were you with the service?</p>
+
+          <div className="rating">
+            {[1, 2, 3, 4, 5].map((value) => (
+              <button
+                key={value}
+                type="button"
+                className={rating === value ? "rating-selected" : ""}
+                onClick={() => setRating(value)}
+              >
+                {value}
+              </button>
+            ))}
+          </div>
+
+          <textarea
+            placeholder="Optional comment"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            rows={4}
+          />
+
+          <button onClick={submitFeedback} disabled={loading}>
+            Submit Feedback
+          </button>
         </section>
       )}
     </main>
