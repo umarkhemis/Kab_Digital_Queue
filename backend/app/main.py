@@ -12,7 +12,7 @@ from app.models import (
 )
 
 
-from app.api import queue, users, services, staff, appointments, feedback
+from app.api import queue, users, services, staff, appointments, feedback, statistics
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -40,6 +40,7 @@ app.include_router(services.router)
 app.include_router(staff.router)
 app.include_router(appointments.router)
 app.include_router(feedback.router)
+app.include_router(statistics.router)
 
 
 @app.get("/")
