@@ -2,73 +2,51 @@
 from app.db.database import SessionLocal
 from app.models.office import Office
 from app.models.service import Service
+from app.models.user import User
+
+DATA = {
+    "Academic Registrar": (
+        "Academic records and related services",
+        [("Academic Transcript", "Request an academic transcript"),
+         ("Academic Inquiry", "General academic inquiry")],
+    ),
+    "Finance": (
+        "Financial and fee-related services",
+        [("Fee Statement", "Request a student fee statement"),
+         ("Financial Inquiry", "General financial inquiry")],
+    ),
+    "Student Affairs": (
+        "Student welfare and support services",
+        [("ID Replacement", "Request replacement of student identification card"),
+         ("Student Affairs Inquiry", "General student affairs support")],
+    ),
+}
 
 
 def seed():
     db = SessionLocal()
+    try:
+        if db.query(Office).count() == 0:
+            for name, (desc, services) in DATA.items():
+                office = Office(name=name, description=desc)
+                db.add(office)
+                db.commit()
+                db.refresh(office)
+                for s_name, s_desc in services:
+                    db.add(Service(office_id=office.id, name=s_name, description=s_desc))
+                db.commit()
 
-    if db.query(Office).count() > 0:
-        print("Database already seeded.")
+        if db.query(User).count() == 0:
+            db.add(User(
+                full_name="Ahmed Umar",
+                email="ahmed@kab.ac.ug",
+                phone="0700000001",
+                password_hash="demo",
+                role="student",
+            ))
+            db.commit()
+    finally:
         db.close()
-        return
-
-    registrar = Office(
-        name="Academic Registrar",
-        description="Academic records and related services",
-    )
-
-    finance = Office(
-        name="Finance",
-        description="Financial and fee-related services",
-    )
-
-    student_affairs = Office(
-        name="Student Affairs",
-        description="Student welfare and support services",
-    )
-
-    db.add_all([registrar, finance, student_affairs])
-    db.commit()
-
-    services = [
-        Service(
-            office_id=registrar.id,
-            name="Academic Transcript",
-            description="Request an academic transcript",
-        ),
-        Service(
-            office_id=registrar.id,
-            name="Academic Inquiry",
-            description="General academic inquiry",
-        ),
-        Service(
-            office_id=finance.id,
-            name="Fee Statement",
-            description="Request a student fee statement",
-        ),
-        Service(
-            office_id=finance.id,
-            name="Financial Inquiry",
-            description="General financial inquiry",
-        ),
-        Service(
-            office_id=student_affairs.id,
-            name="ID Replacement",
-            description="Request replacement of student identification card",
-        ),
-        Service(
-            office_id=student_affairs.id,
-            name="Student Affairs Inquiry",
-            description="General student affairs support",
-        ),
-    ]
-
-    db.add_all(services)
-    db.commit()
-
-    print("Database seeded successfully.")
-
-    db.close()
 
 
 if __name__ == "__main__":
