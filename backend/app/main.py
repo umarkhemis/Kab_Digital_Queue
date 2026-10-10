@@ -1,23 +1,16 @@
 
+import os
+
 from fastapi import FastAPI
-
-from app.db.database import Base, engine
-
-from app.models import (
-    User,
-    Office,
-    Service,
-    QueueEntry,
-    Appointment,
-)
-
-
-from app.api import queue, users, services, staff, appointments, feedback, statistics
-
 from fastapi.middleware.cors import CORSMiddleware
 
-Base.metadata.create_all(bind=engine)
+from app.db.database import Base, engine
+from app.models import User, Office, Service, QueueEntry, Appointment, Feedback
+from app.api import queue, users, services, staff, appointments, feedback, statistics
+from app.db.seed import seed
 
+Base.metadata.create_all(bind=engine)
+seed()
 
 app = FastAPI(
     title="Kabale University Digital Queue System",
@@ -25,14 +18,21 @@ app = FastAPI(
     version="1.0.0",
 )
 
+origins = ["http://localhost:3000"]
+origins += [
+    o.strip()
+    for o in os.getenv("ALLOWED_ORIGINS", "").split(",")
+    if o.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 app.include_router(users.router)
 app.include_router(queue.router)
