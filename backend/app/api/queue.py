@@ -55,6 +55,7 @@ def join_queue(
 
     return {
         "message": "Successfully joined queue",
+        "queue_id": entry.id,
         "queue_number": queue_number,
         "position": waiting + 1,
         "status": entry.status,
