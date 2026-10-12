@@ -31,6 +31,13 @@ type Appointment = {
   status: string;
 };
 
+type Student = {
+  id: number;
+  full_name: string;
+  email: string;
+  role: string;
+};
+
 export default function Home() {
   const [offices, setOffices] = useState<Office[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -48,7 +55,18 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const userId = 1;
+ 
+
+  const [student, setStudent] = useState<Student | null>(null);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+
+  const userId = student?.id;
+  
 
   useEffect(() => {
     fetch(`${API_URL}/services/offices`)
@@ -71,8 +89,10 @@ export default function Home() {
   }, [selectedOffice]);
 
   useEffect(() => {
-    loadAppointments();
-  }, []);
+    if (userId) {
+      loadAppointments();
+    }
+  }, [userId]);
 
   useEffect(() => {
     if (!queueStatus?.queue_id) return;
@@ -96,6 +116,12 @@ export default function Home() {
   }, [queueStatus?.queue_id]);
 
   async function loadAppointments() {
+
+    if (!userId) {
+      setMessage("Please log in first.");
+      return;
+    }
+
     try {
       const response = await fetch(
         `${API_URL}/appointments/user/${userId}`
@@ -111,6 +137,12 @@ export default function Home() {
   }
 
   async function joinQueue() {
+
+    if (!userId) {
+      setMessage("Please log in first.");
+      return;
+    }
+
     if (!selectedService) {
       setMessage("Please select a service first.");
       return;
@@ -154,6 +186,13 @@ export default function Home() {
   }
 
   async function bookAppointment() {
+
+    if (!userId) {
+      setMessage("Please log in first.");
+      return;
+    }
+
+
     if (!selectedService) {
       setMessage("Please select a service first.");
       return;
@@ -198,6 +237,14 @@ export default function Home() {
   }
 
   async function submitFeedback() {
+
+    if (!userId) {
+      setMessage("Please log in first.");
+      return;
+    }
+
+
+
     if (!rating) {
       setMessage("Please select a rating from 1 to 5.");
       return;
@@ -242,17 +289,173 @@ export default function Home() {
     }
   }
 
+  
+  async function authenticateStudent() {
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const endpoint =
+        authMode === "register" ? "/users/" : "/users/login";
+
+      const body =
+        authMode === "register"
+          ? {
+              full_name: fullName,
+              email,
+              phone: phone || null,
+              password,
+            }
+          : { email, password };
+
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMessage(
+          typeof data.detail === "string"
+            ? data.detail
+            : "Unable to continue. Check your details."
+        );
+        return;
+      }
+
+      setStudent(data);
+      setMessage(`Welcome, ${data.full_name}!`);
+
+      setFullName("");
+      setPassword("");
+      setPhone("");
+
+      setQueueStatus(null);
+      setAppointments([]);
+    } catch {
+      setMessage("Could not connect to the server.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
+
+
   return (
     <main className="container">
+
+      
+      {!student ? (
+        <section className="auth-container">
+          <div className="auth-header">
+          <div className="auth-logo">K</div>
+          <h2>
+            {authMode === "register"
+              ? "Create Student Account"
+              : "Welcome Back"}
+          </h2>
+          <p>
+            {authMode === "register"
+              ? "Register to access Kabale University support services."
+              : "Log in to manage your queue and appointments."}
+          </p>
+        </div>
+          <div className="auth-form">
+            {authMode === "register" && (
+              <>
+                <label>Full Name</label>
+                <input
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Enter your full name"
+                  required
+                />
+
+                <label>Phone Number (optional)</label>
+                <input
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Enter phone number"
+                />
+              </>
+            )}
+
+            <label>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="student@example.com"
+              required
+            />
+
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 8 characters"
+              required
+            />
+
+            <button
+              disabled={loading}
+              onClick={authenticateStudent}
+            >
+              {loading
+                ? "Please wait..."
+                : authMode === "register"
+                  ? "Register"
+                  : "Log In"}
+            </button>
+
+            <p>
+              {authMode === "register"
+                ? "Already registered?"
+                : "Don't have an account?"}
+              {" "}
+              <button
+                className="secondary"
+                onClick={() => {
+                  setAuthMode(
+                    authMode === "register" ? "login" : "register"
+                  );
+                  setMessage("");
+                }}
+              >
+                {authMode === "register"
+                  ? "Log In"
+                  : "Create Account"}
+              </button>
+            </p>
+          </div>
+
+          {message && <div className="message">{message}</div>}
+
+          <div className="auth-footer">
+            Kabale University · Digital Queue & Appointment System
+          </div>
+        </section>
+      ) : (
+        
+      // )}
+
+      <>
+
+
       <header className="header">
         <div>
           <h1>Kabale University</h1>
           <p>Digital Queue & Appointment System</p>
         </div>
 
+        
         <div className="student">
-          <strong>Ahmed Umar</strong>
-          <span>Student</span>
+          <strong>{student?.full_name || "Student"}</strong>
+          <span>{student?.role || "Student"}</span>
         </div>
       </header>
 
@@ -403,6 +606,8 @@ export default function Home() {
             Submit Feedback
           </button>
         </section>
+      )}
+      </>
       )}
     </main>
   );
